@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-initialization
+data:
+  1first-db.sql: |-
+    CREATE DATABASE IF NOT EXISTS eocs DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+  2second-db.sql: |-
+    CREATE DATABASE IF NOT EXISTS eocs_microservices DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+  3third-db.sql: |-
+    CREATE DATABASE IF NOT EXISTS logicaldoc DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+  4accesses.sh: |-
+    mysql -u root -p$MYSQL_ROOT_PASSWORD -e "grant all on eocs.* to '$MYSQL_USER'@'%';"
+    mysql -u root -p$MYSQL_ROOT_PASSWORD -e "grant all on eocs_microservices.* to '$MYSQL_USER'@'%';"
+    mysql -u root -p$MYSQL_ROOT_PASSWORD -e "grant all on logicaldoc.* to '$MYSQL_USER'@'%';"

@@ -1,0 +1,55 @@
+apiVersion: apps/v1beta2
+kind: StatefulSet
+metadata:
+  name: {{ .Chart.Name }}
+  labels:
+    app: {{ .Chart.Name }}
+    component: {{ .Chart.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: {{ .Values.registry.name }}/{{ .Values.image.name }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysql-secret
+                key: mysql-root-password
+          - name: MYSQL_ROOT_HOST
+            value: "%"
+          - name: MYSQL_USER
+            valueFrom:
+              secretKeyRef:
+                name: eocs-database-secret
+                key: EOCS_DB_MYSQL_USER
+          - name: MYSQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: eocs-database-secret
+                key: EOCS_DB_MYSQL_PASSWORD
+          volumeMounts:
+          - name: migrations
+            mountPath: /docker-entrypoint-initdb.d
+          - name: mysql-conf
+            mountPath: /etc/mysql/my.cnf
+            subPath: my.cnf
+          ports:
+            - name: mysql
+              containerPort: 3306
+      volumes:
+        - name: migrations
+          configMap: 
+            name: {{ .Chart.Name }}-initialization
+        - name: mysql-conf
+          configMap:
+            name: {{ .Chart.Name }}-config
