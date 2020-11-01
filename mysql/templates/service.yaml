@@ -6,7 +6,7 @@ metadata:
     app: {{ .Chart.Name }}
     component: {{ .Chart.Name }}
 spec:
-  type: {{ .Values.service.type }}
+  type: NodePort
   ports:
     - port: {{ .Values.service.port1.port }}
       name: {{ .Values.service.port1.name }}
